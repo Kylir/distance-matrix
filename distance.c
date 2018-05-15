@@ -53,19 +53,31 @@ void unsetPixel(int16_t x, int16_t y) {
     x %= 8;
     displaybuffer[y] &= ~(1 << x);
 }
-// Switch ON n pixels line x
-void setLine(uint8_t x, uint8_t n) {
+// Switch ON n pixels line l
+void setLine(uint8_t l, uint8_t n) {
     // unset the line
-    unsetAllLine(x);
+    unsetAllLine(l);
     // set the pixels
     for (uint8_t i = 0 ; i < n ; i++) {
-        setPixel(x, i);
+        setPixel(i, l);
     }
 }
-void unsetAllLine(uint8_t x) {
+void unsetAllLine(uint8_t l) {
     for (uint8_t i = 0 ; i < 8 ; i++) {
-        unsetPixel(x, i);
+        unsetPixel(i, l);
     }
+}
+void shiftAllLine() {
+    uint16_t temp;
+
+    displaybuffer[0] = displaybuffer [1];
+    displaybuffer[1] = displaybuffer [2];
+    displaybuffer[2] = displaybuffer [3];
+    displaybuffer[3] = displaybuffer [4];
+    displaybuffer[4] = displaybuffer [5];
+    displaybuffer[5] = displaybuffer [6];
+    displaybuffer[6] = displaybuffer [7];
+    
 }
 // Trigger a display of the buffer
 void display() {
@@ -118,13 +130,16 @@ int main(void) {
         readRangeSingleMillimeters( &xTraStats );
         d = xTraStats.rawDistance;
 
-        // Set the max distance to 80 cm
-        if (d>=800) {
-            d = 800;
+        // Set the max distance to 40 cm
+        if (d >= 400) {
+            d = 400;
         }
 
-        // set the pixels
-        setLine(0, (8 - (d/100)));
+        //shift all the display
+        shiftAllLine();
+
+        // set the pixels on line 8
+        setLine(7, (8 - (d/50)));
         display();        
     }
     return 0;
